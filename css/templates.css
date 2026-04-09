@@ -1,0 +1,158 @@
+/* ===== Template Styles ===== */
+
+/* Template Selector */
+.template-selector {
+    margin-bottom: 24px;
+}
+
+.template-selector h2 {
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+}
+
+.template-options {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+}
+
+.template-option {
+    min-width: 120px;
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    cursor: pointer;
+    transition: all var(--transition);
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.template-option:hover {
+    border-color: var(--border-light);
+    background: var(--bg-card-hover);
+}
+
+.template-option.selected {
+    border-color: var(--primary);
+    background: rgba(74,144,217,0.1);
+}
+
+.template-option span {
+    display: block;
+    margin-top: 8px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.template-option.selected span {
+    color: var(--primary-light);
+}
+
+/* Template Thumbnails */
+.template-thumb {
+    width: 96px;
+    height: 64px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 4px;
+    background: var(--bg-dark);
+    border-radius: 4px;
+}
+
+.t-row {
+    display: flex;
+    gap: 3px;
+    flex: 1;
+}
+
+.t-cell {
+    flex: 1;
+    background: var(--border);
+    border-radius: 2px;
+    min-height: 8px;
+}
+
+.t-cell.wide {
+    width: 100%;
+}
+
+.t-cell.tall {
+    flex: 1.5;
+}
+
+.t-divider {
+    width: 2px;
+    background: var(--primary);
+    flex-shrink: 0;
+}
+
+/* Template Customization */
+.template-customization {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.custom-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.custom-row:last-child { margin-bottom: 0; }
+
+.custom-row label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.custom-row input[type="text"] {
+    flex: 1;
+    min-width: 150px;
+}
+
+/* Template Canvas Container */
+.template-canvas-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: center;
+    overflow: auto;
+}
+
+#templateCanvas {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-sm);
+    background: #1a1a2e;
+}
+
+/* Template Actions */
+.template-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* ===== Template Canvas Rendering Styles ===== */
+/* These are used for canvas positioning calculations */
+
+.template-watermark {
+    position: absolute;
+    bottom: 8px;
+    right: 12px;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.3);
+}

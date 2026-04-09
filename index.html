@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DentalPix - Plataforma de Imagen Dental</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/templates.css">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <div class="brand">
+                <svg class="brand-icon" viewBox="0 0 40 40" fill="none">
+                    <path d="M20 4C14 4 10 8 8 12C6 16 6 22 8 26C10 30 14 36 17 38C18.5 39 19.5 39 20 38C20.5 39 21.5 39 23 38C26 36 30 30 32 26C34 22 34 16 32 12C30 8 26 4 20 4Z" fill="currentColor" opacity="0.9"/>
+                    <path d="M16 14C16 14 18 16 20 16C22 16 24 14 24 14" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span class="brand-name">DentalPix</span>
+            </div>
+        </div>
+        <ul class="nav-links">
+            <li>
+                <a href="#dashboard" class="nav-link active" data-view="dashboard">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    <span>Inicio</span>
+                </a>
+            </li>
+            <li>
+                <a href="#patients" class="nav-link" data-view="patients">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span>Pacientes</span>
+                </a>
+            </li>
+            <li>
+                <a href="#import" class="nav-link" data-view="import">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <span>Importar</span>
+                </a>
+            </li>
+            <li>
+                <a href="#templates" class="nav-link" data-view="templates">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                    <span>Plantillas</span>
+                </a>
+            </li>
+            <li>
+                <a href="#whatsapp" class="nav-link" data-view="whatsapp">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                    <span>WhatsApp</span>
+                </a>
+            </li>
+            <li>
+                <a href="#settings" class="nav-link" data-view="settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    <span>Ajustes</span>
+                </a>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <div class="clinic-logo-small" id="sidebarLogo">
+                <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="32" height="32" rx="4"/><text x="20" y="25" text-anchor="middle" font-size="10" fill="currentColor" stroke="none">LOGO</text></svg>
+            </div>
+            <span class="clinic-name" id="sidebarClinicName">Mi Clinica</span>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="mainContent">
+        <!-- Dashboard View -->
+        <section id="view-dashboard" class="view active">
+            <div class="view-header">
+                <h1>Bienvenido a DentalPix</h1>
+                <p class="subtitle">Plataforma de gestion de imagen dental</p>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon patients-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="statPatients">0</span>
+                        <span class="stat-label">Pacientes</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon photos-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="statPhotos">0</span>
+                        <span class="stat-label">Fotos</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon templates-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="statTemplates">0</span>
+                        <span class="stat-label">Plantillas Creadas</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon sent-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="statSent">0</span>
+                        <span class="stat-label">Enviados</span>
+                    </div>
+                </div>
+            </div>
+            <div class="dashboard-actions">
+                <h2>Acciones Rapidas</h2>
+                <div class="action-cards">
+                    <div class="action-card" onclick="window.app.navigate('import')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <h3>Importar Fotos</h3>
+                        <p>Arrastra o selecciona fotos de pacientes</p>
+                    </div>
+                    <div class="action-card" onclick="window.app.navigate('patients')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                        <h3>Nuevo Paciente</h3>
+                        <p>Registra un nuevo paciente</p>
+                    </div>
+                    <div class="action-card" onclick="window.app.navigate('templates')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                        <h3>Crear Plantilla</h3>
+                        <p>Genera plantillas con fotos del paciente</p>
+                    </div>
+                    <div class="action-card" onclick="window.app.navigate('whatsapp')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                        <h3>Enviar por WhatsApp</h3>
+                        <p>Comparte resultados con pacientes</p>
+                    </div>
+                </div>
+            </div>
+            <div class="recent-activity">
+                <h2>Actividad Reciente</h2>
+                <div id="recentActivity" class="activity-list">
+                    <p class="empty-state">No hay actividad reciente</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Patients View -->
+        <section id="view-patients" class="view">
+            <div class="view-header">
+                <h1>Pacientes</h1>
+                <button class="btn btn-primary" id="btnNewPatient">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Nuevo Paciente
+                </button>
+            </div>
+            <div class="search-bar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="searchPatients" placeholder="Buscar paciente por nombre o telefono...">
+            </div>
+            <div id="patientsList" class="patients-grid">
+                <div class="empty-state-card">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                    <h3>No hay pacientes</h3>
+                    <p>Registra tu primer paciente para comenzar</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Import View -->
+        <section id="view-import" class="view">
+            <div class="view-header">
+                <h1>Importar Fotos</h1>
+                <div class="import-patient-selector">
+                    <label for="importPatientSelect">Paciente:</label>
+                    <select id="importPatientSelect">
+                        <option value="">-- Seleccionar paciente --</option>
+                    </select>
+                    <select id="importPhotoType">
+                        <option value="initial">Fotos Iniciales</option>
+                        <option value="final">Fotos Finales</option>
+                    </select>
+                </div>
+            </div>
+            <div class="import-area" id="dropZone">
+                <div class="drop-zone-content">
+                    <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="8" y="8" width="48" height="48" rx="4" stroke-dasharray="4 4"/>
+                        <polyline points="40 28 32 20 24 28"/>
+                        <line x1="32" y1="20" x2="32" y2="44"/>
+                    </svg>
+                    <h3>Arrastra tus fotos aqui</h3>
+                    <p>o haz clic para seleccionar archivos</p>
+                    <p class="drop-hint">Soporta JPG, PNG, WEBP - Maximo 20MB por imagen</p>
+                    <input type="file" id="fileInput" multiple accept="image/*" hidden>
+                    <button class="btn btn-secondary" id="btnSelectFiles">Seleccionar Archivos</button>
+                    <button class="btn btn-outline" id="btnSelectFolder">Seleccionar Carpeta</button>
+                    <input type="file" id="folderInput" webkitdirectory directory multiple hidden>
+                </div>
+            </div>
+            <div class="import-options">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="autoCropEnabled" checked>
+                    <span>Recorte automatico inteligente</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="autoEnhance" checked>
+                    <span>Mejora automatica de brillo/contraste</span>
+                </label>
+            </div>
+            <div id="importPreview" class="import-preview" style="display:none">
+                <h2>Vista Previa <span id="importCount"></span></h2>
+                <div id="previewGrid" class="preview-grid"></div>
+                <div class="import-actions">
+                    <button class="btn btn-primary" id="btnConfirmImport">Confirmar Importacion</button>
+                    <button class="btn btn-secondary" id="btnClearImport">Limpiar</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Templates View -->
+        <section id="view-templates" class="view">
+            <div class="view-header">
+                <h1>Plantillas</h1>
+                <div class="template-controls">
+                    <select id="templatePatientSelect">
+                        <option value="">-- Seleccionar paciente --</option>
+                    </select>
+                    <select id="templateType">
+                        <option value="initial">Plantilla Inicial</option>
+                        <option value="final">Plantilla Final</option>
+                        <option value="comparison">Antes / Despues</option>
+                    </select>
+                </div>
+            </div>
+            <div class="template-selector">
+                <h2>Elige un Estilo de Plantilla</h2>
+                <div id="templateOptions" class="template-options">
+                    <div class="template-option selected" data-template="classic">
+                        <div class="template-thumb classic-thumb">
+                            <div class="t-row"><div class="t-cell"></div><div class="t-cell"></div></div>
+                            <div class="t-row"><div class="t-cell"></div><div class="t-cell"></div></div>
+                        </div>
+                        <span>Clasico 2x2</span>
+                    </div>
+                    <div class="template-option" data-template="modern">
+                        <div class="template-thumb modern-thumb">
+                            <div class="t-cell wide"></div>
+                            <div class="t-row"><div class="t-cell"></div><div class="t-cell"></div><div class="t-cell"></div></div>
+                        </div>
+                        <span>Moderno</span>
+                    </div>
+                    <div class="template-option" data-template="elegant">
+                        <div class="template-thumb elegant-thumb">
+                            <div class="t-row"><div class="t-cell"></div><div class="t-cell tall"></div></div>
+                            <div class="t-cell wide"></div>
+                        </div>
+                        <span>Elegante</span>
+                    </div>
+                    <div class="template-option" data-template="grid3">
+                        <div class="template-thumb grid3-thumb">
+                            <div class="t-row"><div class="t-cell"></div><div class="t-cell"></div><div class="t-cell"></div></div>
+                            <div class="t-row"><div class="t-cell"></div><div class="t-cell"></div><div class="t-cell"></div></div>
+                        </div>
+                        <span>Cuadricula 3x2</span>
+                    </div>
+                    <div class="template-option" data-template="beforeafter">
+                        <div class="template-thumb ba-thumb">
+                            <div class="t-row"><div class="t-cell"></div><div class="t-divider"></div><div class="t-cell"></div></div>
+                        </div>
+                        <span>Antes/Despues</span>
+                    </div>
+                    <div class="template-option" data-template="panoramic">
+                        <div class="template-thumb pano-thumb">
+                            <div class="t-cell wide"></div>
+                            <div class="t-row"><div class="t-cell"></div><div class="t-cell"></div></div>
+                        </div>
+                        <span>Panoramico</span>
+                    </div>
+                </div>
+            </div>
+            <div class="template-customization">
+                <div class="custom-row">
+                    <label>Color de fondo:</label>
+                    <input type="color" id="templateBgColor" value="#1a1a2e">
+                    <label>Color del texto:</label>
+                    <input type="color" id="templateTextColor" value="#ffffff">
+                    <label>Borde de fotos:</label>
+                    <input type="range" id="templateBorderRadius" min="0" max="20" value="8">
+                    <span id="borderRadiusValue">8px</span>
+                </div>
+                <div class="custom-row">
+                    <label>Titulo:</label>
+                    <input type="text" id="templateTitle" placeholder="Ej: Tratamiento Ortodoncia">
+                    <label>Subtitulo:</label>
+                    <input type="text" id="templateSubtitle" placeholder="Ej: Paciente: Juan Garcia">
+                </div>
+            </div>
+            <div class="template-canvas-container">
+                <canvas id="templateCanvas" width="1200" height="900"></canvas>
+            </div>
+            <div class="template-actions">
+                <button class="btn btn-primary" id="btnGenerateTemplate">Generar Plantilla</button>
+                <button class="btn btn-secondary" id="btnDownloadTemplate">Descargar PNG</button>
+                <button class="btn btn-success" id="btnShareWhatsApp">Enviar por WhatsApp</button>
+            </div>
+        </section>
+
+        <!-- WhatsApp View -->
+        <section id="view-whatsapp" class="view">
+            <div class="view-header">
+                <h1>Centro de WhatsApp</h1>
+                <p class="subtitle">Envia plantillas a tus pacientes y gestiona comandos rapidos</p>
+            </div>
+            <div class="whatsapp-layout">
+                <div class="whatsapp-command-panel">
+                    <h2>Comando Rapido</h2>
+                    <p class="help-text">Escribe el nombre del paciente para buscar automaticamente sus fotos y generar la plantilla</p>
+                    <div class="command-input-area">
+                        <div class="command-prefix">&gt;</div>
+                        <input type="text" id="whatsappCommand" placeholder="Nombre del paciente..." autocomplete="off">
+                        <button class="btn btn-primary" id="btnExecuteCommand">Buscar</button>
+                    </div>
+                    <div id="commandResults" class="command-results" style="display:none"></div>
+                </div>
+                <div class="whatsapp-send-panel">
+                    <h2>Envio Directo</h2>
+                    <div class="send-form">
+                        <div class="form-group">
+                            <label>Paciente:</label>
+                            <select id="whatsappPatientSelect">
+                                <option value="">-- Seleccionar --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Telefono:</label>
+                            <input type="tel" id="whatsappPhone" placeholder="+34 612 345 678">
+                        </div>
+                        <div class="form-group">
+                            <label>Mensaje:</label>
+                            <textarea id="whatsappMessage" rows="4" placeholder="Hola {nombre}, aqui tienes tus fotos del tratamiento..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Adjuntar:</label>
+                            <div class="attachment-options">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="attachInitial" checked>
+                                    <span>Plantilla Inicial</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="attachFinal">
+                                    <span>Plantilla Final</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="attachComparison">
+                                    <span>Antes/Despues</span>
+                                </label>
+                            </div>
+                        </div>
+                        <button class="btn btn-success btn-large" id="btnSendWhatsApp">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                            Enviar por WhatsApp
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="whatsapp-history">
+                <h2>Historial de Envios</h2>
+                <div id="sendHistory" class="history-list">
+                    <p class="empty-state">No hay envios registrados</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Settings View -->
+        <section id="view-settings" class="view">
+            <div class="view-header">
+                <h1>Ajustes de la Clinica</h1>
+            </div>
+            <div class="settings-grid">
+                <div class="settings-card">
+                    <h2>Datos de la Clinica</h2>
+                    <div class="form-group">
+                        <label>Nombre de la Clinica:</label>
+                        <input type="text" id="settingClinicName" placeholder="Clinica Dental Ejemplo">
+                    </div>
+                    <div class="form-group">
+                        <label>Telefono:</label>
+                        <input type="tel" id="settingClinicPhone" placeholder="+34 912 345 678">
+                    </div>
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <input type="email" id="settingClinicEmail" placeholder="info@clinica.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Web:</label>
+                        <input type="url" id="settingClinicWeb" placeholder="https://www.clinica.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Direccion:</label>
+                        <input type="text" id="settingClinicAddress" placeholder="Calle Ejemplo 123, Madrid">
+                    </div>
+                </div>
+                <div class="settings-card">
+                    <h2>Logo de la Clinica</h2>
+                    <div class="logo-upload-area" id="logoUploadArea">
+                        <div id="logoPreview" class="logo-preview">
+                            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="8" y="8" width="48" height="48" rx="8"/><circle cx="24" cy="28" r="6"/><path d="M56 44L42 30L16 56"/></svg>
+                            <p>Arrastra tu logo aqui o haz clic</p>
+                        </div>
+                        <input type="file" id="logoInput" accept="image/*" hidden>
+                    </div>
+                    <button class="btn btn-secondary" id="btnRemoveLogo">Quitar Logo</button>
+                </div>
+                <div class="settings-card">
+                    <h2>Ruta de Pacientes</h2>
+                    <p class="help-text">Configura la ruta base donde se guardan las carpetas de los pacientes. Cada paciente tendra su propia carpeta con subcarpetas para fotos iniciales y finales.</p>
+                    <div class="form-group">
+                        <label>Ruta base:</label>
+                        <input type="text" id="settingBasePath" placeholder="C:\Clinica\Pacientes">
+                    </div>
+                    <div class="folder-structure-preview">
+                        <code>
+                            <div>📁 Pacientes/</div>
+                            <div>&nbsp;&nbsp;📁 Garcia_Juan/</div>
+                            <div>&nbsp;&nbsp;&nbsp;&nbsp;📁 01_Inicial/</div>
+                            <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;📷 foto1.jpg</div>
+                            <div>&nbsp;&nbsp;&nbsp;&nbsp;📁 02_Progreso/</div>
+                            <div>&nbsp;&nbsp;&nbsp;&nbsp;📁 03_Final/</div>
+                            <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;📷 foto1.jpg</div>
+                        </code>
+                    </div>
+                </div>
+                <div class="settings-card">
+                    <h2>Mensajes Predeterminados</h2>
+                    <div class="form-group">
+                        <label>Mensaje inicial:</label>
+                        <textarea id="settingMsgInitial" rows="3" placeholder="Hola {nombre}, estas son las fotos del inicio de tu tratamiento en {clinica}.">Hola {nombre}, estas son las fotos del inicio de tu tratamiento en {clinica}. Estamos encantados de acompanarte en este proceso.</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Mensaje final:</label>
+                        <textarea id="settingMsgFinal" rows="3" placeholder="Hola {nombre}, mira los increibles resultados de tu tratamiento en {clinica}!">Hola {nombre}, mira los increibles resultados de tu tratamiento en {clinica}! Estamos muy contentos con tu progreso. Si conoces a alguien que necesite tratamiento, no dudes en recomendarnos.</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Mensaje comparacion:</label>
+                        <textarea id="settingMsgComparison" rows="3" placeholder="Hola {nombre}, observa tu transformacion antes y despues...">Hola {nombre}, observa tu increible transformacion con {clinica}! Antes y despues de tu tratamiento. Nos encanta ver estos resultados.</textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-actions">
+                <button class="btn btn-primary" id="btnSaveSettings">Guardar Ajustes</button>
+                <button class="btn btn-danger" id="btnResetSettings">Restablecer</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal: New Patient -->
+    <div class="modal-overlay" id="modalNewPatient">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Nuevo Paciente</h2>
+                <button class="modal-close" data-close-modal="modalNewPatient">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Nombre completo:</label>
+                    <input type="text" id="patientName" placeholder="Juan Garcia Lopez" required>
+                </div>
+                <div class="form-group">
+                    <label>Telefono (WhatsApp):</label>
+                    <input type="tel" id="patientPhone" placeholder="+34 612 345 678">
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="patientEmail" placeholder="juan@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Tratamiento:</label>
+                    <select id="patientTreatment">
+                        <option value="ortodoncia">Ortodoncia</option>
+                        <option value="blanqueamiento">Blanqueamiento</option>
+                        <option value="implantes">Implantes</option>
+                        <option value="carillas">Carillas</option>
+                        <option value="endodoncia">Endodoncia</option>
+                        <option value="periodoncia">Periodoncia</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Notas:</label>
+                    <textarea id="patientNotes" rows="2" placeholder="Notas adicionales..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-close-modal="modalNewPatient">Cancelar</button>
+                <button class="btn btn-primary" id="btnSavePatient">Guardar Paciente</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Patient Detail -->
+    <div class="modal-overlay" id="modalPatientDetail">
+        <div class="modal modal-large">
+            <div class="modal-header">
+                <h2 id="detailPatientName">Paciente</h2>
+                <button class="modal-close" data-close-modal="modalPatientDetail">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="patient-detail-tabs">
+                    <button class="tab-btn active" data-tab="info">Info</button>
+                    <button class="tab-btn" data-tab="initial-photos">Fotos Iniciales</button>
+                    <button class="tab-btn" data-tab="final-photos">Fotos Finales</button>
+                </div>
+                <div class="tab-content active" id="tab-info">
+                    <div id="patientDetailInfo"></div>
+                </div>
+                <div class="tab-content" id="tab-initial-photos">
+                    <div id="initialPhotosGrid" class="photos-grid"></div>
+                    <button class="btn btn-secondary btn-small" id="btnAddInitialPhotos">Agregar Fotos Iniciales</button>
+                </div>
+                <div class="tab-content" id="tab-final-photos">
+                    <div id="finalPhotosGrid" class="photos-grid"></div>
+                    <button class="btn btn-secondary btn-small" id="btnAddFinalPhotos">Agregar Fotos Finales</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="btnDeletePatient">Eliminar Paciente</button>
+                <button class="btn btn-primary" id="btnCreateTemplateFromDetail">Crear Plantilla</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Before/After Comparison Slider (Overlay) -->
+    <div class="comparison-overlay" id="comparisonOverlay" style="display:none">
+        <div class="comparison-container">
+            <button class="modal-close comparison-close" id="closeComparison">&times;</button>
+            <h2>Comparacion Antes / Despues</h2>
+            <div class="comparison-slider" id="comparisonSlider">
+                <div class="comparison-before" id="comparisonBefore">
+                    <img id="comparisonBeforeImg" alt="Antes">
+                    <span class="comparison-label">ANTES</span>
+                </div>
+                <div class="comparison-after" id="comparisonAfter">
+                    <img id="comparisonAfterImg" alt="Despues">
+                    <span class="comparison-label">DESPUES</span>
+                </div>
+                <div class="comparison-handle" id="comparisonHandle">
+                    <div class="handle-line"></div>
+                    <div class="handle-circle">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="15 18 9 12 15 6"/><polyline points="9 18 15 12 9 6" transform="translate(6,0)"/></svg>
+                    </div>
+                    <div class="handle-line"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/cropper.js"></script>
+    <script src="js/templates.js"></script>
+    <script src="js/whatsapp.js"></script>
+    <script src="js/patients.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
