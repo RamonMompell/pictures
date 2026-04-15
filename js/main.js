@@ -141,7 +141,11 @@
       view.innerHTML = '<div class="empty"><h3>Página no encontrada</h3></div>';
     });
 
-    if (!location.hash) location.hash = '/dashboard';
+    // Smart landing per role
+    const cfg = RoleConfig.configFor(user);
+    if (!location.hash || location.hash === '#' || location.hash === '#/') {
+      location.hash = cfg.landing || '/dashboard';
+    }
     Router.start();
 
     // Highlight active nav
@@ -160,56 +164,69 @@
   }
 
   function buildSidebar(user) {
+    const cfg = RoleConfig.configFor(user);
     const aside = document.createElement('aside');
     aside.className = 'sidebar';
+    aside.style.setProperty('--accent', cfg.accent);
+
     const brand = document.createElement('div');
     brand.className = 'brand';
     brand.innerHTML = `
-      <div class="brand-logo">C</div>
-      <div class="brand-name">Clin<span>ia</span></div>
+      <div class="brand-logo" style="background:linear-gradient(135deg, ${cfg.accent}, #0f766e)">C</div>
+      <div>
+        <div class="brand-name">Clin<span>ia</span></div>
+        <div class="role-tag">${cfg.label}</div>
+      </div>
     `;
     aside.appendChild(brand);
 
     const nav = document.createElement('div');
     nav.className = 'nav';
-
-    function group(label) {
-      const d = document.createElement('div');
-      d.className = 'group-label';
-      d.textContent = label;
-      nav.appendChild(d);
-    }
-    function link(path, label, icon) {
-      const a = document.createElement('a');
-      a.href = '#/' + path;
-      a.dataset.path = path;
-      a.innerHTML = `${icon || ''}<span>${label}</span>`;
-      nav.appendChild(a);
-      return a;
-    }
-
-    group('Clínico');
-    link('dashboard', 'Inicio', svgIcon('home'));
-    link('patients', 'Pacientes', svgIcon('users'));
-
-    if (Permissions.canAny(user, Permissions.CAP.CATALOG_MANAGE, Permissions.CAP.BUDGET_VIEW)) {
-      group('Operativo');
-      link('catalog', 'Catálogo', svgIcon('grid'));
-    }
-
-    group('Administración');
-    if (Permissions.can(user, Permissions.CAP.USERS_MANAGE)) link('users', 'Usuarios', svgIcon('user'));
-    if (Permissions.can(user, Permissions.CAP.AUDIT_VIEW)) link('audit', 'Auditoría', svgIcon('shield'));
-    link('settings', 'Ajustes', svgIcon('cog'));
-
     aside.appendChild(nav);
+
+    const items = RoleConfig.sidebarFor(user);
+    items.forEach((it) => {
+      if (it.group) {
+        const d = document.createElement('div');
+        d.className = 'group-label';
+        d.textContent = it.group;
+        nav.appendChild(d);
+      } else {
+        const a = document.createElement('a');
+        a.href = '#/' + it.path;
+        a.dataset.path = it.path;
+        a.innerHTML = `${it.icon || ''}<span>${it.label}</span>`;
+        nav.appendChild(a);
+      }
+    });
+
+    // Big role-themed primary action button
+    if (cfg.quickActions && cfg.quickActions.length) {
+      const wrap = document.createElement('div');
+      wrap.className = 'sidebar-cta';
+      cfg.quickActions.forEach((qa) => {
+        const btn = document.createElement('button');
+        btn.className = 'btn ' + (qa.primary ? 'btn-primary' : '') + ' btn-block';
+        btn.textContent = qa.label;
+        btn.addEventListener('click', () => handleQuickAction(qa.action));
+        wrap.appendChild(btn);
+      });
+      aside.appendChild(wrap);
+    }
 
     const footer = document.createElement('div');
     footer.className = 'sidebar-footer';
-    footer.innerHTML = `Clinia v0.1 · Demo local<br>Datos en localStorage`;
+    footer.innerHTML = `Clinia · v0.2<br>Modo demo local`;
     aside.appendChild(footer);
 
     return aside;
+  }
+
+  function handleQuickAction(action) {
+    if (action === 'newPatient') {
+      Router.go('/patients');
+      setTimeout(() => Patients.openCreatePatientModal(), 60);
+    }
   }
 
   function buildTopbar(user) {

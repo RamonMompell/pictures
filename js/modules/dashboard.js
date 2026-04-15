@@ -1,282 +1,274 @@
 /* ============================================================
-   Clinia — Dashboard module (role-aware)
+   Clinia — Dashboard (role-aware, inbox-first)
+   Friendly home page tuned to the role of the current user.
    ============================================================ */
 
 (function (global) {
-  const { el, fmtMoney, fmtDate, timeAgo, statusPill, initials, escapeHtml } = UI;
+  const { el, escapeHtml, fmtMoney, fmtDate, timeAgo, statusPill, initials } = UI;
 
-  function kpi(label, value, sub) {
+  function greetingTime() {
+    const h = new Date().getHours();
+    if (h < 6) return 'Buenas noches';
+    if (h < 13) return 'Buenos días';
+    if (h < 21) return 'Buenas tardes';
+    return 'Buenas noches';
+  }
+
+  function statCard(label, value, sub) {
     return el('div', { class: 'kpi' }, [
       el('div', { class: 'label' }, label),
-      el('div', { class: 'value' }, value),
+      el('div', { class: 'value' }, String(value)),
       sub ? el('div', { class: 'sub' }, sub) : null,
     ]);
   }
 
-  function calcMetrics() {
-    const patients = DB.patients.all();
-    const plans = DB.treatmentPlans.all();
-    const versions = DB.planVersions.all();
-    const budgets = DB.budgets.all();
-    const budgetVersions = DB.budgetVersions.all();
-    const commercial = DB.commercialStatuses.all();
-    const validations = DB.validations.all();
-
-    const totalBudgeted = budgetVersions
-      .filter((v) => ['clinical', 'commercial'].includes(v.type))
-      .reduce((s, v) => s + (v.totals?.total || 0), 0);
-    const totalAccepted = commercial
-      .filter((c) => c.status === 'accepted')
-      .reduce((s, c) => s + (c.acceptedValue || 0), 0);
-    const acceptanceRate = budgets.length
-      ? Math.round(
-          (commercial.filter((c) => c.status === 'accepted').length / budgets.length) * 100
-        )
-      : 0;
-
-    const consensusComplete = versions.filter((v) => v.status === 'consensus_complete').length;
-    const consensusPending = versions.filter((v) =>
-      ['consensus_partial', 'validating', 'pending_review'].includes(v.status)
-    ).length;
-
-    return {
-      patients: patients.length,
-      newThisMonth: patients.filter((p) => {
-        const d = new Date(p.createdAt);
-        const t = new Date();
-        return d.getMonth() === t.getMonth() && d.getFullYear() === t.getFullYear();
-      }).length,
-      plans: plans.length,
-      consensusComplete,
-      consensusPending,
-      validations: validations.length,
-      totalBudgeted,
-      totalAccepted,
-      acceptanceRate,
-    };
+  function inboxItem(item) {
+    const left = el('div', { class: 'inbox-item-left' }, [
+      el('div', { class: 'inbox-item-icon', style: { background: item.color + '18', color: item.color } }, item.icon),
+      el('div', {}, [
+        el('div', { class: 'inbox-item-title' }, item.title),
+        el('div', { class: 'inbox-item-sub' }, item.sub),
+      ]),
+    ]);
+    const right = el('div', {}, [
+      el(
+        'a',
+        { class: 'btn btn-sm btn-primary', href: item.primaryUrl },
+        item.primaryLabel || 'Abrir'
+      ),
+    ]);
+    return el('div', { class: 'inbox-item' }, [left, right]);
   }
 
-  function recentActivity() {
-    const log = DB.auditLog.all().slice().reverse().slice(0, 10);
-    if (!log.length)
-      return el('div', { class: 'empty' }, 'Sin actividad reciente.');
+  function inboxSection(user) {
+    const cfg = RoleConfig.configFor(user);
+    const items = RoleConfig.buildInbox(user);
+    const card = el('div', { class: 'card' });
+    card.appendChild(
+      el('div', { class: 'card-header' }, [
+        el('h3', {}, '📥 Tu bandeja de entrada'),
+        el('span', { class: 'badge brand' }, items.length + ' tareas'),
+      ])
+    );
+    if (items.length === 0) {
+      card.appendChild(
+        el('div', { class: 'inbox-empty' }, [
+          el('div', { class: 'inbox-empty-icon' }, '✓'),
+          el('h4', {}, '¡Estás al día!'),
+          el('p', {}, cfg.emptyInboxText || 'No tienes tareas pendientes ahora mismo.'),
+        ])
+      );
+    } else {
+      const list = el('div', { class: 'inbox-list' });
+      items.slice(0, 8).forEach((it) => list.appendChild(inboxItem(it)));
+      card.appendChild(list);
+      if (items.length > 8) {
+        card.appendChild(
+          el('div', { class: 'text-center', style: { marginTop: '12px' } }, [
+            el('small', { class: 'text-muted' }, `+${items.length - 8} más`),
+          ])
+        );
+      }
+    }
+    return card;
+  }
+
+  function recentPatientsSection() {
+    const card = el('div', { class: 'card' });
+    card.appendChild(
+      el('div', { class: 'card-header' }, [
+        el('h3', {}, '👥 Pacientes recientes'),
+        el(
+          'a',
+          { href: '#/patients', class: 'text-muted', style: { fontSize: '12px' } },
+          'Ver todos →'
+        ),
+      ])
+    );
+    const list = DB.patients
+      .all()
+      .sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''))
+      .slice(0, 5);
+    if (list.length === 0) {
+      card.appendChild(el('div', { class: 'empty' }, 'Aún no hay pacientes.'));
+      return card;
+    }
+    const ul = el('div', { class: 'compact-list' });
+    list.forEach((p) => {
+      ul.appendChild(
+        el(
+          'a',
+          { href: '#/patients/' + p.id, class: 'compact-item' },
+          [
+            el('div', { class: 'avatar-sm' }, initials(p.name)),
+            el('div', { class: 'compact-item-body' }, [
+              el('div', { class: 'compact-item-title' }, p.name),
+              el('div', { class: 'compact-item-sub' }, statusLabel(p.status)),
+            ]),
+            el('div', { class: 'text-muted', style: { fontSize: '11px' } }, timeAgo(p.updatedAt || p.createdAt)),
+          ]
+        )
+      );
+    });
+    card.appendChild(ul);
+    return card;
+  }
+
+  function statusLabel(s) {
+    return ({
+      first_visit: 'Primera visita',
+      planning: 'En planificación',
+      budget_pending: 'Pendiente de presupuesto',
+      in_treatment: 'En tratamiento',
+      completed: 'Completado',
+    }[s] || s || '—');
+  }
+
+  function activitySection() {
+    const log = DB.auditLog.all().slice().reverse().slice(0, 6);
+    const card = el('div', { class: 'card' });
+    card.appendChild(el('div', { class: 'card-header' }, [el('h3', {}, '📋 Actividad reciente')]));
+    if (log.length === 0) {
+      card.appendChild(el('div', { class: 'empty' }, 'Sin actividad reciente.'));
+      return card;
+    }
     const list = el('div', { class: 'activity-list' });
     log.forEach((l) => {
       list.appendChild(
         el('div', { class: 'activity-item' }, [
           el('div', { class: 'avatar' }, initials(l.userName || 'S')),
           el('div', { class: 'text' }, [
-            el('div', {}, `${escapeHtml(l.userName || 'Sistema')} · ${escapeHtml(l.action)}`),
+            el('div', {}, escapeHtml(l.userName || 'Sistema') + ' · ' + escapeHtml(l.action)),
             el('div', { class: 'time' }, timeAgo(l.createdAt)),
           ]),
         ])
       );
     });
-    return list;
+    card.appendChild(list);
+    return card;
   }
 
-  function specialtyBreakdown() {
-    const validations = DB.validations.all();
-    const specs = DB.specialties.all();
-    const counts = {};
-    validations.forEach((v) => {
-      counts[v.specialtyId] = (counts[v.specialtyId] || 0) + 1;
-    });
-    const wrap = el('div');
-    specs.forEach((s) => {
-      const n = counts[s.id] || 0;
-      const max = Math.max(...Object.values(counts), 1);
-      const pct = Math.round((n / max) * 100);
-      wrap.appendChild(
-        el('div', { style: { marginBottom: '10px' } }, [
-          el(
-            'div',
-            { class: 'row-sb', style: { fontSize: '12px', marginBottom: '4px' } },
-            [el('span', {}, s.name), el('span', { class: 'text-muted' }, n)]
-          ),
-          el(
-            'div',
-            { style: { height: '6px', background: 'var(--c-bg-alt)', borderRadius: '4px', overflow: 'hidden' } },
-            [
-              el('div', {
-                style: {
-                  width: pct + '%',
-                  height: '100%',
-                  background: s.color || 'var(--c-brand)',
-                  transition: 'width .3s',
-                },
-              }),
-            ]
-          ),
+  function welcomeHero(user) {
+    const cfg = RoleConfig.configFor(user);
+    const stats = RoleConfig.quickStats(user);
+
+    const hero = el('div', { class: 'role-hero', style: { '--accent': cfg.accent } });
+    hero.innerHTML = `
+      <div class="role-hero-body">
+        <div class="role-pill">${escapeHtml(cfg.label)}</div>
+        <h1>${greetingTime()}, ${escapeHtml(user.name.split(' ')[0])}</h1>
+        <p>${escapeHtml(cfg.greeting)}</p>
+      </div>
+    `;
+    if (stats.length) {
+      const stripe = el('div', { class: 'role-hero-stats' });
+      stats.forEach((s) => {
+        stripe.appendChild(
+          el('div', { class: 'role-hero-stat' }, [
+            el('div', { class: 'v' }, String(s.value)),
+            el('div', { class: 'l' }, s.label),
+          ])
+        );
+      });
+      hero.appendChild(stripe);
+    }
+    return hero;
+  }
+
+  function suggestedActions(user) {
+    const role = RoleConfig.primaryRole(user);
+    const items = [];
+    if (role === 'PLANNER') {
+      items.push({ icon: '➕', title: 'Crear paciente', sub: 'Empieza un caso nuevo', url: '#/patients/new' });
+      items.push({ icon: '📋', title: 'Ver pacientes', sub: 'Continúa con tus casos', url: '#/patients' });
+      items.push({ icon: '📚', title: 'Catálogo', sub: 'Conceptos y precios', url: '#/catalog' });
+    } else if (role === 'DOCTOR') {
+      items.push({ icon: '✓', title: 'Pacientes', sub: 'Revisa los planes que te llegan', url: '#/patients' });
+      items.push({ icon: '⚙', title: 'Mis ajustes', sub: 'Especialidades y preferencias', url: '#/settings' });
+    } else if (role === 'COORDINATOR') {
+      items.push({ icon: '€', title: 'Presupuestos', sub: 'Pacientes pendientes de venta', url: '#/patients' });
+      items.push({ icon: '➕', title: 'Nuevo paciente', sub: 'Alta administrativa', url: '#/patients/new' });
+      items.push({ icon: '📚', title: 'Catálogo', sub: 'Conceptos y precios', url: '#/catalog' });
+    } else if (role === 'ASSISTANT') {
+      items.push({ icon: '🗓', title: 'Pacientes', sub: 'Próximas citas y checklist', url: '#/patients' });
+    } else if (role === 'RECEPTION') {
+      items.push({ icon: '➕', title: 'Nuevo paciente', sub: 'Alta administrativa', url: '#/patients/new' });
+      items.push({ icon: '👥', title: 'Pacientes', sub: 'Buscar y editar fichas', url: '#/patients' });
+    } else {
+      items.push({ icon: '📊', title: 'Auditoría', sub: 'Trazabilidad del sistema', url: '#/audit' });
+      items.push({ icon: '👥', title: 'Usuarios', sub: 'Gestión de equipo', url: '#/users' });
+      items.push({ icon: '⚙', title: 'Ajustes', sub: 'Configuración global', url: '#/settings' });
+    }
+    if (items.length === 0) return null;
+    const wrap = el('div', { class: 'card' });
+    wrap.appendChild(el('div', { class: 'card-header' }, [el('h3', {}, '⚡ Atajos para ti')]));
+    const grid = el('div', { class: 'shortcut-grid' });
+    items.forEach((it) => {
+      grid.appendChild(
+        el('a', { href: it.url, class: 'shortcut' }, [
+          el('div', { class: 'shortcut-icon' }, it.icon),
+          el('div', {}, [
+            el('div', { class: 'shortcut-title' }, it.title),
+            el('div', { class: 'shortcut-sub' }, it.sub),
+          ]),
         ])
       );
     });
+    wrap.appendChild(grid);
     return wrap;
-  }
-
-  function pendingValidationsForUser(user) {
-    const userSpecs = user.specialties || [];
-    const validations = DB.validations.all();
-    const versions = DB.planVersions.all();
-    const plans = DB.treatmentPlans.all();
-    const list = [];
-    versions.forEach((v) => {
-      if (!['validating', 'pending_review', 'consensus_partial'].includes(v.status)) return;
-      (v.requiredSpecialties || []).forEach((sId) => {
-        if (!userSpecs.includes(sId)) return;
-        const decided = validations.find(
-          (val) => val.versionId === v.id && val.specialtyId === sId && val.userId === user.id
-        );
-        if (!decided || decided.decision === 'pending') {
-          const plan = plans.find((p) => p.id === v.planId);
-          const patient = plan && DB.patients.get(plan.patientId);
-          list.push({ version: v, plan, patient, specialtyId: sId });
-        }
-      });
-    });
-    return list;
   }
 
   function render(root) {
     const user = Auth.currentUser();
-    const m = calcMetrics();
     root.innerHTML = '';
 
-    // Welcome
-    root.appendChild(
-      el('div', { class: 'dashboard-welcome' }, [
-        el('div', {}, [
-          el('h1', {}, 'Hola, ' + user.name.split(' ')[0]),
-          el(
-            'p',
-            {},
-            'Plataforma de planificación interdisciplinar — ' +
-              new Date().toLocaleDateString('es-ES', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-              })
-          ),
-        ]),
-        el('div', {}, [
+    root.appendChild(welcomeHero(user));
+
+    // Friendly first-time hint card if new user
+    if (!DB.settings.get()['onboarded_' + user.id]) {
+      const cfg = RoleConfig.configFor(user);
+      const onboard = el('div', { class: 'onboarding-card' }, [
+        el('div', { class: 'row-sb' }, [
+          el('div', {}, [
+            el('h3', {}, '👋 Bienvenida a Clinia'),
+            el('p', { class: 'text-muted' }, [
+              'Esta es tu pantalla de inicio como ',
+              el('strong', {}, cfg.label.toLowerCase()),
+              '. Aquí ves lo que necesitas hacer hoy. Ve a Pacientes para abrir un caso concreto.',
+            ]),
+          ]),
           el(
             'button',
             {
-              class: 'btn btn-primary',
-              onClick: () => Router.go('/patients/new'),
+              class: 'btn btn-ghost btn-sm',
+              onClick: (e) => {
+                const s = DB.settings.get();
+                s['onboarded_' + user.id] = true;
+                DB.settings.set(s);
+                e.target.closest('.onboarding-card').remove();
+              },
             },
-            '+ Nuevo paciente'
+            'Entendido ✓'
           ),
         ]),
-      ])
-    );
-
-    // KPIs
-    const kpis = el('div', { class: 'dashboard-kpis' }, [
-      kpi('Pacientes', m.patients, `+${m.newThisMonth} este mes`),
-      kpi('Planes activos', m.plans, `${m.consensusComplete} con consenso`),
-      kpi('Presupuestado', fmtMoney(m.totalBudgeted), 'global'),
-      kpi('Aceptado', fmtMoney(m.totalAccepted), m.acceptanceRate + '% aceptación'),
-    ]);
-    root.appendChild(kpis);
-
-    // Main grid
-    const main = el('div', { class: 'dashboard-main' });
-
-    // Left: pending tasks (depends on role)
-    const leftCard = el('div', { class: 'card' });
-    leftCard.appendChild(
-      el('div', { class: 'card-header' }, [
-        el('h3', {}, 'Tu trabajo pendiente'),
-        el('span', { class: 'badge brand' }, Permissions.rolesOf(user)[0]),
-      ])
-    );
-
-    const tasks = [];
-
-    // Doctor / Director: validations pending
-    if (Permissions.canAny(user, Permissions.CAP.PLAN_VALIDATE)) {
-      const pv = pendingValidationsForUser(user);
-      pv.slice(0, 5).forEach((p) => {
-        tasks.push({
-          icon: '✓',
-          title: `Validar plan de ${p.patient?.name || '—'}`,
-          sub: `Versión ${p.version.versionNumber} · ${
-            DB.specialties.get(p.specialtyId)?.name || ''
-          }`,
-          link: '#/patients/' + p.patient?.id + '?tab=plan',
-        });
-      });
+      ]);
+      root.appendChild(onboard);
     }
 
-    // Planner: drafts and changes_requested
-    if (Permissions.can(user, Permissions.CAP.PLAN_CREATE)) {
-      const drafts = DB.planVersions.where(
-        (v) =>
-          v.authorId === user.id &&
-          ['draft', 'changes_requested'].includes(v.status)
-      );
-      drafts.slice(0, 5).forEach((v) => {
-        const plan = DB.treatmentPlans.get(v.planId);
-        const patient = plan && DB.patients.get(plan.patientId);
-        tasks.push({
-          icon: '✎',
-          title: `Plan en borrador: ${patient?.name || ''}`,
-          sub: `v${v.versionNumber} · ${v.status}`,
-          link: '#/patients/' + patient?.id + '?tab=plan',
-        });
-      });
-    }
-
-    // Coordinator: pending budgets
-    if (Permissions.can(user, Permissions.CAP.COMMERCIAL_RUN)) {
-      const pendingComm = DB.commercialStatuses.where(
-        (c) => !['accepted', 'rejected'].includes(c.status)
-      );
-      pendingComm.slice(0, 5).forEach((c) => {
-        const budget = DB.budgets.get(c.budgetId);
-        const patient = budget && DB.patients.get(budget.patientId);
-        tasks.push({
-          icon: '€',
-          title: `Presupuesto pendiente: ${patient?.name || ''}`,
-          sub: c.status,
-          link: '#/patients/' + patient?.id + '?tab=budget',
-        });
-      });
-    }
-
-    if (tasks.length === 0) {
-      leftCard.appendChild(el('div', { class: 'empty' }, 'No tienes tareas pendientes 🎉'));
-    } else {
-      const ul = el('div', { class: 'activity-list' });
-      tasks.forEach((t) => {
-        const a = el('a', { href: t.link, class: 'activity-item' }, [
-          el('div', { class: 'avatar' }, t.icon),
-          el('div', { class: 'text' }, [
-            el('div', {}, t.title),
-            el('div', { class: 'time' }, t.sub),
-          ]),
-        ]);
-        ul.appendChild(a);
-      });
-      leftCard.appendChild(ul);
-    }
-    main.appendChild(leftCard);
-
-    // Right column: stats + activity
+    // Two-column layout
+    const grid = el('div', { class: 'dashboard-main' });
+    const left = el('div');
     const right = el('div');
-    const card2 = el('div', { class: 'card' });
-    card2.appendChild(el('div', { class: 'card-header' }, [el('h3', {}, 'Carga por especialidad')]));
-    card2.appendChild(specialtyBreakdown());
-    right.appendChild(card2);
-
-    const card3 = el('div', { class: 'card' });
-    card3.appendChild(el('div', { class: 'card-header' }, [el('h3', {}, 'Actividad reciente')]));
-    card3.appendChild(recentActivity());
-    right.appendChild(card3);
-
-    main.appendChild(right);
-    root.appendChild(main);
+    left.appendChild(inboxSection(user));
+    const sa = suggestedActions(user);
+    if (sa) left.appendChild(sa);
+    right.appendChild(recentPatientsSection());
+    if (Permissions.can(user, Permissions.CAP.AUDIT_VIEW) || RoleConfig.primaryRole(user) === 'DIRECTOR') {
+      right.appendChild(activitySection());
+    }
+    grid.appendChild(left);
+    grid.appendChild(right);
+    root.appendChild(grid);
   }
 
   global.Dashboard = { render };

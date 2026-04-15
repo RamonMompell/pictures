@@ -12,20 +12,38 @@
 
   function renderList(root) {
     root.innerHTML = '';
+    const user = Auth.currentUser();
+    const role = RoleConfig.primaryRole(user);
+
+    // Role-aware subtitle
+    const subtitleByRole = {
+      PLANNER: 'Empieza una primera visita o continúa con tus casos.',
+      DOCTOR: 'Tus pacientes en seguimiento. Abre uno para validar su plan.',
+      COORDINATOR: 'Gestiona presupuestos, presentaciones y citas.',
+      ASSISTANT: 'Agenda operativa y próximos pasos.',
+      DIRECTOR: 'Vista global de los casos de la clínica.',
+      RECEPTION: 'Buscar, registrar y editar pacientes.',
+      SUPER_ADMIN: 'Vista global de los casos de la organización.',
+    };
+
+    const headerActions = el('div', { class: 'actions' });
+    if (Permissions.can(user, Permissions.CAP.PATIENT_WRITE)) {
+      headerActions.appendChild(
+        el(
+          'button',
+          { class: 'btn btn-primary', onClick: () => openCreatePatientModal() },
+          '+ Nuevo paciente'
+        )
+      );
+    }
 
     root.appendChild(
       el('div', { class: 'page-header' }, [
         el('div', {}, [
           el('h1', {}, 'Pacientes'),
-          el('div', { class: 'subtitle' }, 'Gestión completa de pacientes y casos'),
+          el('div', { class: 'subtitle' }, subtitleByRole[role] || 'Gestión completa de pacientes.'),
         ]),
-        el('div', { class: 'actions' }, [
-          el(
-            'button',
-            { class: 'btn btn-primary', onClick: () => openCreatePatientModal() },
-            '+ Nuevo paciente'
-          ),
-        ]),
+        headerActions,
       ])
     );
 
@@ -201,31 +219,56 @@
 
     root.innerHTML = '';
 
-    const header = el('div', { class: 'patient-header' }, [
-      el('div', { class: 'avatar' }, initials(patient.name)),
-      el('div', {}, [
-        el('h1', {}, patient.name),
-        el('div', { class: 'meta' }, [
-          el('span', {}, fmtAge(patient.birthDate)),
-          el('span', {}, '· ' + (patient.sex || '—')),
-          el('span', {}, '· ' + (patient.phone || '—')),
-          el('span', {}, '· ' + badgeForStatus(patient.status).replace(/<[^>]+>/g, '')),
-        ]),
-      ]),
-      el('div', { class: 'actions' }, [
+    const cfg = RoleConfig.configFor(user);
+
+    // Role-specific header actions
+    const headerActions = el('div', { class: 'actions' });
+    const role = RoleConfig.primaryRole(user);
+    if (role === 'PLANNER' || Permissions.can(user, Permissions.CAP.FIRST_VISIT_RUN)) {
+      headerActions.appendChild(
         el(
           'button',
           { class: 'btn', onClick: () => Router.go('/patients/' + patient.id + '/first-visit') },
-          'Primera visita'
-        ),
+          '🩺 Primera visita'
+        )
+      );
+    }
+    if (role === 'PLANNER' || role === 'DIRECTOR' || role === 'SUPER_ADMIN') {
+      headerActions.appendChild(
         el(
           'button',
           { class: 'btn btn-primary', onClick: () => TreatmentPlan.openItemModal(patient.id) },
           '+ Añadir al plan'
-        ),
+        )
+      );
+    }
+    if (role === 'COORDINATOR') {
+      headerActions.appendChild(
+        el(
+          'button',
+          { class: 'btn btn-primary', onClick: () => Router.go('/patients/' + patient.id + '?tab=commercial') },
+          '€ Ver venta'
+        )
+      );
+    }
+    if (role === 'ASSISTANT') {
+      headerActions.appendChild(
+        el(
+          'button',
+          { class: 'btn btn-primary', onClick: () => Router.go('/patients/' + patient.id + '?tab=appointments') },
+          '🗓 Próximas citas'
+        )
+      );
+    }
+
+    const header = el('div', { class: 'patient-header' }, [
+      el('div', { class: 'avatar' }, initials(patient.name)),
+      el('div', { class: 'patient-header-body' }, [
+        el('h1', {}, patient.name),
+        el('div', { class: 'meta' }),
       ]),
+      headerActions,
     ]);
-    // Replace last meta span (status) with proper html
     header.querySelector('.meta').innerHTML = `
       <span>${escapeHtml(fmtAge(patient.birthDate))}</span>
       <span>· ${escapeHtml(patient.sex || '—')}</span>
@@ -234,8 +277,9 @@
     `;
     root.appendChild(header);
 
-    // Tabs
-    const tabs = ['summary', 'plan', 'budget', 'commercial', 'appointments', 'files', 'chat', 'history', 'audit'];
+    // Tabs filtered & ordered by role
+    const allowed = cfg.patientTabs || ['summary', 'plan', 'budget', 'commercial', 'appointments', 'files', 'chat', 'history', 'audit'];
+    const tabs = allowed;
     const tabLabels = {
       summary: 'Resumen',
       plan: 'Plan de tratamiento',
@@ -247,7 +291,9 @@
       history: 'Historia clínica',
       audit: 'Actividad',
     };
-    const active = tabs.includes(query.tab) ? query.tab : 'summary';
+    // Default tab follows the role unless overridden by query
+    const roleDefault = cfg.defaultPatientTab && tabs.includes(cfg.defaultPatientTab) ? cfg.defaultPatientTab : tabs[0];
+    const active = tabs.includes(query.tab) ? query.tab : roleDefault;
     const tabsEl = el('div', { class: 'tabs' });
     tabs.forEach((t) => {
       tabsEl.appendChild(
