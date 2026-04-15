@@ -70,12 +70,29 @@
           ),
           el(
             'button',
-            { class: 'btn btn-accent', onClick: () => triggerAIAssist(visit) },
-            '✨ Asistente IA'
+            { class: 'btn btn-accent btn-lg', onClick: () => triggerAIAssist(visit) },
+            '🎙 Empezar a escuchar con IA'
           ),
         ]),
       ])
     );
+
+    // Friendly hint card explaining the flow
+    const totalFilled = STEPS.filter((s) => visit.sections[s.key]).length;
+    if (totalFilled === 0) {
+      root.appendChild(
+        el('div', { class: 'wizard-hint' }, [
+          el('div', {}, [
+            el('strong', {}, '✨ Pulsa "Empezar a escuchar con IA" arriba'),
+            el(
+              'p',
+              {},
+              'La IA escuchará la conversación con el paciente, transcribirá lo que diga y rellenará automáticamente los campos del informe. Tú solo tendrás que revisar y aceptar.'
+            ),
+          ]),
+        ])
+      );
+    }
 
     const wizard = el('div', { class: 'wizard' });
     const stepsCol = el('div', { class: 'steps' });
@@ -125,14 +142,32 @@
         const ta = el('textarea', {
           rows: 10,
           style: { width: '100%', minHeight: '220px' },
-          placeholder: 'Escribe aquí…',
+          placeholder: 'Escribe aquí o usa el asistente IA del botón superior…',
         });
         ta.value = visit.sections[step.key] || '';
         ta.addEventListener('input', () => {
           visit.sections[step.key] = ta.value;
+          // Mark as user-edited (overrides AI flag)
+          if (visit.sections._aiMeta && visit.sections._aiMeta[step.key]) {
+            visit.sections._aiMeta[step.key].userEdited = true;
+          }
           DB.firstVisits.update(visit.id, { sections: visit.sections });
         });
         const wrap = el('div', { class: 'form-field' }, [ta]);
+        // AI badge if this field came from the assistant
+        const aiMeta = (visit.sections && visit.sections._aiMeta) || {};
+        if (aiMeta[step.key]) {
+          const badge = el(
+            'div',
+            {
+              class: 'ai-field-badge' + (aiMeta[step.key].userEdited ? ' edited' : ''),
+            },
+            aiMeta[step.key].userEdited
+              ? '✏️ Generado por IA · editado por ti'
+              : '✨ Generado por IA · revisa antes de validar'
+          );
+          wrap.insertBefore(badge, ta);
+        }
         content.appendChild(wrap);
       }
 
@@ -362,26 +397,23 @@
   }
 
   function triggerAIAssist(visit) {
-    // Placeholder for future IA integration. We mark fields as suggestions.
-    openModal({
-      title: '✨ Asistente del Planificador',
-      body: el('div', {}, [
-        el('p', {}, 'En producción este botón conectará con un proveedor LLM (Anthropic Claude u otro) para:'),
-        el('ul', {}, [
-          el('li', {}, 'Transcribir la conversación de la primera visita'),
-          el('li', {}, 'Resumir anamnesis y motivo de consulta'),
-          el('li', {}, 'Proponer hallazgos, diagnóstico y plan de tratamiento'),
-          el('li', {}, 'Marcar las sugerencias como contenido asistido por IA, sin cerrar el caso'),
-        ]),
-        el('p', { class: 'text-muted' }, 'Por ahora el flujo está preparado pero la integración real no está conectada. Los campos de la primera visita ya soportan trazabilidad de origen.'),
-      ]),
-      footer: (footer, close) => {
-        footer.appendChild(
-          el('button', { class: 'btn btn-primary', onClick: () => close(null) }, 'Entendido')
-        );
-      },
+    // Real AI session — voice → live transcript → field extraction
+    const patient = DB.patients.get(visit.patientId);
+    if (typeof AIAssistant === 'undefined') {
+      toast('Módulo IA no cargado', 'error');
+      return;
+    }
+    AIAssistant.openSession(visit, patient, () => {
+      // After applying, re-render the wizard so the user sees the new content
+      const root = document.getElementById('view');
+      if (root) FirstVisit.render(root, visit.patientId);
     });
   }
 
-  global.FirstVisit = { render };
+  function launchAI(patientId) {
+    const visit = getOrCreateVisit(patientId);
+    triggerAIAssist(visit);
+  }
+
+  global.FirstVisit = { render, launchAI };
 })(window);

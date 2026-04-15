@@ -103,8 +103,32 @@
   function renderApp(user) {
     const root = document.getElementById('app');
     root.innerHTML = '';
+
+    // Impersonation banner (top of screen, full width)
+    if (Auth.isImpersonating()) {
+      const banner = document.createElement('div');
+      banner.className = 'impersonation-banner';
+      const real = Auth.realUser();
+      banner.innerHTML = `
+        <div>
+          <strong>👁 Modo "Actuar como"</strong>
+          · Estás viendo Clinia como <strong>${UI.escapeHtml(user.name)}</strong>
+          (${(user.roles || [])[0] || ''}). Tu cuenta real es <strong>${UI.escapeHtml(real.name)}</strong>.
+          Cualquier acción quedará registrada como hecha por ${UI.escapeHtml(user.name)} bajo supervisión del master.
+        </div>
+        <button class="btn btn-sm">Volver a mi sesión</button>
+      `;
+      banner.querySelector('button').addEventListener('click', () => {
+        Auth.stopImpersonation();
+        UI.toast('Volviendo a tu cuenta', 'info');
+        mount();
+      });
+      root.appendChild(banner);
+    }
+
     const shell = document.createElement('div');
     shell.className = 'app-shell';
+    if (Auth.isImpersonating()) shell.classList.add('with-banner');
 
     // Sidebar
     shell.appendChild(buildSidebar(user));
@@ -266,6 +290,17 @@
     });
     right.appendChild(search);
 
+    // Master "Actuar como" selector
+    const realUser = Auth.realUser();
+    if (realUser && (realUser.roles || []).includes('SUPER_ADMIN')) {
+      const actBtn = document.createElement('button');
+      actBtn.className = 'btn btn-sm act-as-btn';
+      actBtn.innerHTML =
+        '👁 ' + (Auth.isImpersonating() ? 'Actuando como ' + UI.escapeHtml(user.name.split(' ')[0]) : 'Actuar como…');
+      actBtn.addEventListener('click', () => openActAsPicker(realUser));
+      right.appendChild(actBtn);
+    }
+
     // Notifications icon
     const unread = DB.notifications.where((n) => n.userId === user.id && !n.read).length;
     const notifBtn = document.createElement('button');
@@ -273,7 +308,7 @@
     notifBtn.style.position = 'relative';
     notifBtn.innerHTML = `
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-      ${unread > 0 ? '<span class="dot"></span>' : ''}
+      ${unread > 0 ? `<span class="notif-badge">${unread}</span>` : ''}
     `;
     notifBtn.addEventListener('click', () => showNotifications(user));
     right.appendChild(notifBtn);
@@ -321,6 +356,72 @@
 
     top.appendChild(right);
     return top;
+  }
+
+  function openActAsPicker(realUser) {
+    const users = DB.users.where((u) => u.active && u.id !== realUser.id);
+    const list = UI.el('div', { class: 'act-as-list' });
+    if (Auth.isImpersonating()) {
+      list.appendChild(
+        UI.el(
+          'button',
+          {
+            class: 'act-as-item act-as-stop',
+            onClick: () => {
+              Auth.stopImpersonation();
+              UI.toast('Volviendo a tu cuenta de master', 'info');
+              mount();
+            },
+          },
+          [
+            UI.el('div', { class: 'avatar' }, '←'),
+            UI.el('div', {}, [
+              UI.el('div', {}, 'Volver a mi cuenta'),
+              UI.el('small', { class: 'text-muted' }, realUser.name),
+            ]),
+          ]
+        )
+      );
+    }
+    users.forEach((u) => {
+      list.appendChild(
+        UI.el(
+          'button',
+          {
+            class: 'act-as-item',
+            onClick: () => {
+              Auth.startImpersonation(u.id);
+              UI.toast('Actuando como ' + u.name, 'success');
+              mount();
+            },
+          },
+          [
+            UI.el('div', { class: 'avatar' }, UI.initials(u.name)),
+            UI.el('div', {}, [
+              UI.el('div', {}, u.name),
+              UI.el('small', { class: 'text-muted' }, (u.roles || []).map((r) => Permissions.label(r)).join(', ')),
+            ]),
+          ]
+        )
+      );
+    });
+
+    UI.openModal({
+      title: '👁 Actuar como otro usuario',
+      body: UI.el('div', {}, [
+        UI.el(
+          'p',
+          { class: 'text-muted' },
+          'Como master puedes asumir temporalmente la identidad de cualquier doctor para responder, validar planes o escribir comentarios en su nombre. Toda acción quedará registrada en auditoría con tu cuenta real.'
+        ),
+        list,
+      ]),
+      footer: (footer, close) => {
+        footer.appendChild(
+          UI.el('button', { class: 'btn', onClick: () => close(null) }, 'Cancelar')
+        );
+      },
+    });
   }
 
   function showNotifications(user) {

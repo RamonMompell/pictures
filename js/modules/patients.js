@@ -137,11 +137,33 @@
     container.appendChild(table);
   }
 
-  function openCreatePatientModal() {
+  function openCreatePatientModal(opts = {}) {
     if (!Permissions.can(Auth.currentUser(), Permissions.CAP.PATIENT_WRITE)) {
       return toast('Sin permisos para crear pacientes', 'error');
     }
+    const role = RoleConfig.primaryRole(Auth.currentUser());
+    const isPlanner = role === 'PLANNER' || role === 'DIRECTOR' || role === 'SUPER_ADMIN';
+
     const form = el('form');
+    // Friendly intro for planners explaining the flow
+    if (isPlanner) {
+      form.appendChild(
+        el('div', { class: 'wizard-intro' }, [
+          el('h3', {}, '🩺 Nuevo caso clínico'),
+          el(
+            'p',
+            {},
+            'Vas a dar de alta el paciente. En el siguiente paso, el ✨ asistente IA empezará a escuchar la primera visita: transcribirá la conversación y rellenará el informe automáticamente.'
+          ),
+          el('ol', { class: 'wizard-intro-steps' }, [
+            el('li', {}, '1. Datos del paciente (este paso)'),
+            el('li', {}, '2. Grabación + transcripción IA'),
+            el('li', {}, '3. Revisión del informe'),
+            el('li', {}, '4. Envío automático a especialistas'),
+          ]),
+        ])
+      );
+    }
     const f1 = field({ label: 'Nombre completo', name: 'name', required: true });
     const f2 = field({ label: 'Fecha de nacimiento', name: 'birthDate', type: 'date' });
     const f3 = field({ label: 'Sexo', name: 'sex', type: 'select', options: ['', 'F', 'M', 'Otro'] });
@@ -149,7 +171,11 @@
     const f5 = field({ label: 'Email', name: 'email' });
     const f6 = field({ label: 'DNI / documento', name: 'document' });
     const f7 = field({ label: 'Procedencia', name: 'source' });
-    const f8 = field({ label: 'Motivo de consulta', name: 'motive', type: 'textarea' });
+    const f8 = field({
+      label: 'Motivo de consulta (lo puede rellenar luego la IA)',
+      name: 'motive',
+      type: 'textarea',
+    });
     const row1 = el('div', { class: 'form-row' }, [f1.wrap, f2.wrap]);
     const row2 = el('div', { class: 'form-row form-row-3' }, [f3.wrap, f4.wrap, f5.wrap]);
     const row3 = el('div', { class: 'form-row' }, [f6.wrap, f7.wrap]);
@@ -159,7 +185,8 @@
     form.appendChild(f8.wrap);
 
     openModal({
-      title: 'Nuevo paciente',
+      title: isPlanner ? '🩺 Nuevo caso clínico' : 'Nuevo paciente',
+      size: 'lg',
       body: form,
       footer: (footer, close) => {
         footer.appendChild(el('button', { class: 'btn', onClick: () => close(null) }, 'Cancelar'));
@@ -167,7 +194,7 @@
           el(
             'button',
             {
-              class: 'btn btn-primary',
+              class: 'btn btn-primary btn-lg',
               onClick: () => {
                 const data = formData(form);
                 if (!data.name) return toast('El nombre es obligatorio', 'error');
@@ -178,7 +205,7 @@
                   status: 'first_visit',
                   clinicId: settings.activeClinicId,
                   createdBy: u.id,
-                  assignedPlannerId: u.id,
+                  assignedPlannerId: isPlanner ? u.id : null,
                 });
                 DB.medicalHistories.insert({
                   patientId: p.id,
@@ -191,6 +218,20 @@
                 Audit.log('patient.create', { targetType: 'patient', targetId: p.id });
                 close(p);
                 toast('Paciente creado', 'success');
+                if (typeof opts.then === 'function') {
+                  opts.then(p);
+                  return;
+                }
+                if (isPlanner) {
+                  // Streamlined flow: open first visit + auto-launch AI session
+                  Router.go('/patients/' + p.id + '/first-visit');
+                  setTimeout(() => {
+                    if (typeof FirstVisit !== 'undefined' && FirstVisit.launchAI) {
+                      FirstVisit.launchAI(p.id);
+                    }
+                  }, 250);
+                  return;
+                }
                 Router.go('/patients/' + p.id);
               },
             },

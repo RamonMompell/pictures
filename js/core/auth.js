@@ -16,7 +16,8 @@
   const Auth = {
     fakeHash,
 
-    currentUser() {
+    // The "real" logged-in user (never impersonated)
+    realUser() {
       const session = DB.session.get();
       if (!session) return null;
       const user = DB.users.get(session.userId);
@@ -25,6 +26,71 @@
         return null;
       }
       return user;
+    },
+
+    // The user the system should act as. Equals realUser unless the
+    // master is impersonating someone via "Actuar como".
+    currentUser() {
+      const session = DB.session.get();
+      if (!session) return null;
+      const real = this.realUser();
+      if (!real) return null;
+      if (session.actAsId && session.actAsId !== real.id) {
+        // Only SUPER_ADMIN can impersonate; defensive check
+        if (!(real.roles || []).includes('SUPER_ADMIN')) {
+          this.stopImpersonation();
+          return real;
+        }
+        const target = DB.users.get(session.actAsId);
+        if (target && target.active) return target;
+        this.stopImpersonation();
+        return real;
+      }
+      return real;
+    },
+
+    isImpersonating() {
+      const session = DB.session.get();
+      if (!session) return false;
+      const real = this.realUser();
+      return !!(session.actAsId && real && session.actAsId !== real.id);
+    },
+
+    startImpersonation(userId) {
+      const real = this.realUser();
+      if (!real) return false;
+      if (!(real.roles || []).includes('SUPER_ADMIN')) return false;
+      const target = DB.users.get(userId);
+      if (!target || !target.active) return false;
+      const session = DB.session.get();
+      DB.session.set({ ...session, actAsId: userId });
+      DB.auditLog.insert({
+        userId: real.id,
+        userName: real.name + ' (master)',
+        action: 'impersonate.start',
+        targetType: 'user',
+        targetId: userId,
+        details: { actAs: target.name },
+      });
+      return true;
+    },
+
+    stopImpersonation() {
+      const session = DB.session.get();
+      if (!session) return;
+      const real = this.realUser();
+      if (session.actAsId) {
+        DB.auditLog.insert({
+          userId: real?.id,
+          userName: real ? real.name + ' (master)' : 'Sistema',
+          action: 'impersonate.stop',
+          targetType: 'user',
+          targetId: session.actAsId,
+        });
+      }
+      const next = { ...session };
+      delete next.actAsId;
+      DB.session.set(next);
     },
 
     isAuthenticated() {
