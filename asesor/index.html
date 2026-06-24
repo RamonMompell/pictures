@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#15171b">
+    <title>ÁBACO · Panel de asesoría fiscal</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="manifest" href="manifest.webmanifest">
+</head>
+<body>
+    <div id="navScrim" class="nav-scrim"></div>
+
+    <!-- ===================== Barra lateral ===================== -->
+    <nav id="sidebar">
+        <div class="brand">
+            <div class="brand-mark">Á</div>
+            <div class="brand-text">
+                <span class="brand-name">ÁBACO</span>
+                <span class="brand-tag">Asesoría fiscal</span>
+            </div>
+        </div>
+
+        <button class="btn btn-primary btn-capture" data-capture>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Capturar
+        </button>
+
+        <ul class="nav-links">
+            <li><a href="#inicio" class="nav-link active" data-view="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Inicio</span></a></li>
+            <li><a href="#documentos" class="nav-link" data-view="documentos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg><span>Documentos</span></a></li>
+            <li><a href="#entidades" class="nav-link" data-view="entidades"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span>Entidades</span></a></li>
+            <li><a href="#reportes" class="nav-link" data-view="reportes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Reportes</span></a></li>
+            <li><a href="#integraciones" class="nav-link" data-view="integraciones"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 17l6-6-6-6"/><line x1="12" y1="19" x2="20" y2="19"/></svg><span>Automatización</span></a></li>
+            <li><a href="#ayuda" class="nav-link" data-view="ayuda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span>Guía</span></a></li>
+        </ul>
+
+        <div class="sidebar-foot">
+            <div class="advisor-card">
+                <div class="advisor-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                <div><div class="advisor-name">Asesor · España</div><div class="advisor-sub">Acceso compartido</div></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===================== Barra superior (móvil) ===================== -->
+    <header class="topbar">
+        <button id="btnBurger" class="icon-btn" aria-label="Menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <span class="topbar-brand">ÁBACO</span>
+        <button class="icon-btn icon-btn-accent" data-capture aria-label="Capturar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></button>
+    </header>
+
+    <!-- ===================== Contenido ===================== -->
+    <main id="main">
+
+        <!-- -------- Inicio -------- -->
+        <section id="view-inicio" class="view active">
+            <div class="view-head">
+                <div><h1>Inicio</h1><p class="muted">Resumen de <span id="dashPeriod"></span></p></div>
+                <button class="btn btn-primary" data-capture>+ Capturar documento</button>
+            </div>
+            <div class="kpi-row" id="dashKpis"></div>
+            <div class="dash-grid">
+                <div class="panel">
+                    <div class="panel-head"><h2>Alertas y avisos</h2></div>
+                    <div id="dashAlerts" class="alerts"></div>
+                </div>
+                <div class="panel">
+                    <div class="panel-head"><h2>Resumen por entidad</h2><a class="link" href="#entidades">Ver todas</a></div>
+                    <div id="dashEntities" class="mini-ents"></div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-head"><h2>Documentos recientes</h2><a class="link" href="#documentos">Ver libro completo</a></div>
+                <div id="dashRecent" class="recent-list"></div>
+            </div>
+        </section>
+
+        <!-- -------- Documentos -------- -->
+        <section id="view-documentos" class="view">
+            <div class="view-head">
+                <div><h1>Libro de documentos</h1><p class="muted"><span id="docsCount">0 documentos</span> · facturas emitidas, recibidas, recibos y tickets</p></div>
+                <button class="btn btn-primary" data-capture>+ Capturar</button>
+            </div>
+            <div class="toolbar">
+                <input type="search" id="fltSearch" class="inp" placeholder="Buscar nº, proveedor, NIF…">
+                <select id="fltEntity" class="inp"></select>
+                <select id="fltDirection" class="inp"></select>
+                <select id="fltDocType" class="inp"></select>
+                <select id="fltStatus" class="inp"></select>
+                <select id="fltPeriod" class="inp"></select>
+            </div>
+            <div id="docsCorrelativeBanner"></div>
+            <div class="table-wrap panel">
+                <table class="data-table">
+                    <thead><tr>
+                        <th>Fecha</th><th>Entidad</th><th>Dirección</th><th>Tipo</th><th>Número</th><th>Contraparte</th><th class="num">Total</th><th>Estado</th><th></th>
+                    </tr></thead>
+                    <tbody id="docsTableBody"></tbody>
+                </table>
+                <div id="docsEmpty" class="empty-soft">No hay documentos con estos filtros.</div>
+            </div>
+        </section>
+
+        <!-- -------- Entidades -------- -->
+        <section id="view-entidades" class="view">
+            <div class="view-head">
+                <div><h1>Estructura de entidades</h1><p class="muted">Sociedades, personas y medios de pago. Pulsa una tarjeta para editar sus datos fiscales.</p></div>
+            </div>
+            <div id="entitiesHost" class="entities-host"></div>
+        </section>
+
+        <!-- -------- Reportes -------- -->
+        <section id="view-reportes" class="view">
+            <div class="view-head">
+                <div><h1>Reportes</h1><p class="muted">Resúmenes listos para tu asesor. Exporta en CSV o como paquete completo.</p></div>
+            </div>
+            <div class="toolbar">
+                <select id="repEntity" class="inp"></select>
+                <select id="repDirection" class="inp"></select>
+                <select id="repYear" class="inp"></select>
+                <div class="toolbar-spacer"></div>
+                <button id="btnExportCSV" class="btn btn-ghost">Exportar CSV</button>
+                <button id="btnExportPackage" class="btn btn-primary">Paquete para asesor (ZIP)</button>
+            </div>
+            <div class="kpi-row kpi-row-6" id="repKpis"></div>
+            <div class="dash-grid">
+                <div class="panel">
+                    <div class="panel-head"><h2>Por entidad</h2></div>
+                    <div class="table-wrap"><table class="data-table"><thead><tr><th>Entidad</th><th class="num">Docs</th><th class="num">Emitido</th><th class="num">Recibido</th><th class="num">Neto</th></tr></thead><tbody id="repByEntity"></tbody></table></div>
+                </div>
+                <div class="panel">
+                    <div class="panel-head"><h2>Gasto por categoría</h2></div>
+                    <div id="repByCategory" class="bars"></div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-head"><h2>Evolución por mes</h2><button id="btnExportBackup" class="link-btn">Descargar copia de seguridad</button></div>
+                <div class="table-wrap"><table class="data-table"><thead><tr><th>Mes</th><th class="num">Emitido</th><th class="num">Recibido</th><th class="num">Neto</th></tr></thead><tbody id="repByMonth"></tbody></table></div>
+            </div>
+        </section>
+
+        <!-- -------- Automatización / Integraciones -------- -->
+        <section id="view-integraciones" class="view">
+            <div class="view-head">
+                <div><h1>Automatización</h1><p class="muted">Conecta Holded, importa Revolut y activa la sincronización en tiempo real con tu asesor.</p></div>
+            </div>
+
+            <div class="int-grid">
+                <div class="panel int-card">
+                    <div class="int-head"><h2>Holded · facturas emitidas</h2><span id="stHolded" class="int-status">Sin configurar</span></div>
+                    <p class="muted">Tus facturas emitidas desde Holded pueden archivarse aquí <b>automáticamente</b>, ordenadas por su código correlativo. Guarda la clave API y asóciala a una entidad. La sincronización efectiva requiere el pequeño conector descrito en la <a class="link" href="#ayuda">Guía</a>.</p>
+                    <label class="field"><span>Clave API de Holded</span><input type="password" id="cfgHoldedKey" class="inp" placeholder="Holded API Key"></label>
+                    <label class="field"><span>Entidad asociada</span><select id="cfgHoldedEntity" class="inp"></select></label>
+                    <button id="btnSaveHolded" class="btn btn-primary">Guardar configuración</button>
+                </div>
+
+                <div class="panel int-card">
+                    <div class="int-head"><h2>Revolut · tarjeta de Alejandra</h2><span id="stRevolut" class="int-status">Sin importaciones</span></div>
+                    <p class="muted">Exporta el extracto de movimientos de Revolut en CSV y súbelo aquí: cada gasto se archiva como documento bajo la tarjeta de Alejandra, clasificado por fecha. Luego puedes adjuntar el recibo de cada uno.</p>
+                    <label class="field"><span>Entidad por defecto para estos gastos</span><select id="cfgRevolutEntity" class="inp"></select></label>
+                    <input type="file" id="revolutFileInput" accept=".csv,text/csv" hidden>
+                    <button id="btnImportRevolut" class="btn btn-primary">Importar CSV de Revolut</button>
+                </div>
+
+                <div class="panel int-card">
+                    <div class="int-head"><h2>Tiempo real con el asesor</h2><span id="stSupa" class="int-status">Sin configurar</span></div>
+                    <p class="muted">Para que tu asesor lo vea <b>en directo</b> desde España, conecta una base en la nube (Supabase). Pega la URL y la clave pública del proyecto. Sin esto, el panel guarda los datos solo en este dispositivo y compartes mediante exportación.</p>
+                    <label class="field"><span>Supabase URL</span><input type="text" id="cfgSupaUrl" class="inp" placeholder="https://xxxx.supabase.co"></label>
+                    <label class="field"><span>Supabase anon key</span><input type="password" id="cfgSupaKey" class="inp" placeholder="clave pública (anon)"></label>
+                    <button id="btnSaveSupabase" class="btn btn-primary">Guardar credenciales</button>
+                </div>
+
+                <div class="panel int-card">
+                    <div class="int-head"><h2>Perfil de acceso</h2></div>
+                    <p class="muted">Indica si usas este panel como titular o como asesor. Afecta a cómo se firman las notas en cada documento.</p>
+                    <label class="field"><span>Perfil</span><select id="cfgRole" class="inp"><option value="titular">Titular</option><option value="asesor">Asesor</option></select></label>
+                </div>
+            </div>
+        </section>
+
+        <!-- -------- Guía -------- -->
+        <section id="view-ayuda" class="view">
+            <div class="view-head"><div><h1>Guía · qué necesito de ti</h1><p class="muted">Para dejar los flujos lo más automáticos posible.</p></div></div>
+
+            <div class="panel guide">
+                <h2>1 · Facturas que tú emites (Holded) — automático</h2>
+                <p>El objetivo es que <b>no tengas que subirlas a mano</b>. Para conectarlo necesito de ti:</p>
+                <ul>
+                    <li><b>Clave API de Holded</b> (en Holded: <i>Ajustes → Desarrolladores → API key</i>).</li>
+                    <li><b>Qué entidad</b> de las tuyas corresponde a cada cuenta de Holded.</li>
+                    <li>Confirmar la <b>serie y formato de numeración</b> que usas (ej. <span class="mono">2025/001</span>) para mantenerlas correlativas.</li>
+                </ul>
+                <p class="note">Por seguridad, la clave de Holded no puede vivir en una web pública. Se conecta con un pequeño servicio (un webhook/conector) que: al emitir una factura en Holded, la descarga, la archiva aquí con su número y guarda el PDF. Te lo dejo preparado; solo necesito la clave y el visto bueno.</p>
+            </div>
+
+            <div class="panel guide">
+                <h2>2 · Facturas y recibos que recibes — captura</h2>
+                <p>Estas las añades tú porque te llegan por mil canales. El flujo está al máximo de cómodo:</p>
+                <ul>
+                    <li><b>Foto</b> desde el móvil: pulsa <b>Capturar → Hacer foto</b>. Lo único que te pregunta es <b>dónde archivarla</b> (entidad). La fecha (día/mes/año) se detecta y clasifica sola.</li>
+                    <li><b>Arrastrar y soltar</b> o subir un archivo (imagen o PDF) desde el ordenador o el móvil.</li>
+                    <li>Si es una <b>factura correcta</b>, los datos se desglosan fácilmente. Si es un <b>recibo, ticket o proforma</b> (restaurantes, compras de calle…), rellenas lo justo y queda igualmente archivado y descargable.</li>
+                </ul>
+            </div>
+
+            <div class="panel guide">
+                <h2>3 · Tiempo real con tu asesor</h2>
+                <p>Para que tu asesor en España lo vea actualizado al instante, elige una opción:</p>
+                <ul>
+                    <li><b>Recomendado:</b> creas un proyecto gratuito en <b>Supabase</b> y me pasas la <i>URL</i> y la <i>anon key</i> (pestaña Automatización). Activo la sincronización y tu asesor entra con su propio acceso.</li>
+                    <li><b>Alternativa sin nube:</b> usas el botón <b>Paquete para asesor (ZIP)</b> en Reportes y le envías todo (CSV + archivos ordenados por entidad y mes) cuando quieras.</li>
+                </ul>
+            </div>
+
+            <div class="panel guide">
+                <h2>4 · Resumen de lo que necesito de ti</h2>
+                <ol>
+                    <li>Clave API de Holded + correspondencia cuenta↔entidad.</li>
+                    <li>Datos fiscales de cada entidad (NIF/CIF/VAT) — los rellenas en <a class="link" href="#entidades">Entidades</a>.</li>
+                    <li>Si quieres tiempo real: credenciales de Supabase + email del asesor.</li>
+                    <li>Extracto CSV de Revolut cuando quieras volcar los gastos de la tarjeta.</li>
+                </ol>
+                <p class="note">Con eso dejo Holded y la sincronización funcionando solos. El resto ya está operativo en este panel.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- ===================== Modal: Capturar ===================== -->
+    <div id="modalCapture" class="modal-overlay">
+        <div class="modal modal-lg">
+            <div class="modal-head"><h3 id="capModalTitle">Capturar documento</h3><button class="icon-btn" data-close="modalCapture"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+            <div class="modal-body cap-body">
+                <!-- Columna archivo -->
+                <div class="cap-left">
+                    <div id="capPreview" class="cap-preview">
+                        <div id="capDropHint" class="cap-drop-hint">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            <p>Arrastra aquí la factura<br>o pulsa para elegir archivo</p>
+                        </div>
+                    </div>
+                    <div class="cap-file-actions">
+                        <button id="btnCapPhoto" class="btn btn-dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Hacer foto</button>
+                        <button id="btnCapUpload" class="btn btn-ghost">Subir archivo</button>
+                        <button id="btnCapOcr" class="btn btn-ghost" style="display:none">Leer datos (OCR)</button>
+                    </div>
+                    <input type="file" id="capCameraInput" accept="image/*" capture="environment" hidden>
+                    <input type="file" id="capFileInput" accept="image/*,application/pdf" hidden>
+                </div>
+
+                <!-- Columna datos -->
+                <div class="cap-right">
+                    <label class="field field-primary"><span>¿Dónde quieres archivarla? <b class="req">·</b></span><select id="capEntity" class="inp inp-lg"></select></label>
+                    <div class="grid-2">
+                        <label class="field"><span>Dirección</span><select id="capDirection" class="inp"></select></label>
+                        <label class="field"><span>Tipo de documento</span><select id="capDocType" class="inp"></select></label>
+                    </div>
+                    <div class="grid-2">
+                        <label class="field"><span>Fecha</span><input type="date" id="capDate" class="inp"></label>
+                        <label class="field"><span>Número <button id="btnSuggestNumber" type="button" class="link-btn" style="display:none">sugerir correlativo</button></span><input type="text" id="capNumber" class="inp mono" placeholder="2025/001"></label>
+                    </div>
+                    <div class="grid-2">
+                        <label class="field"><span>Total</span><input type="number" step="0.01" id="capTotal" class="inp" placeholder="0,00"></label>
+                        <label class="field"><span>Moneda</span><select id="capCurrency" class="inp"></select></label>
+                    </div>
+
+                    <button id="btnToggleDesglose" type="button" class="toggle-desglose">Mostrar desglose detallado</button>
+
+                    <div id="capAdvanced" class="cap-advanced">
+                        <div class="grid-2">
+                            <label class="field"><span>Contraparte (proveedor/cliente)</span><input type="text" id="capCounterparty" class="inp"></label>
+                            <label class="field"><span>NIF / CIF / VAT</span><input type="text" id="capTaxId" class="inp"></label>
+                        </div>
+                        <div class="grid-3">
+                            <label class="field"><span>Categoría</span><select id="capCategory" class="inp"></select></label>
+                            <label class="field"><span>Medio de pago</span><select id="capPayment" class="inp"></select></label>
+                            <label class="field"><span>Tarjeta</span><select id="capCard" class="inp"></select></label>
+                        </div>
+                        <div class="grid-3">
+                            <label class="field"><span>Base imponible</span><input type="number" step="0.01" id="capBase" class="inp"></label>
+                            <label class="field"><span>Tipo IVA %</span><input type="number" step="0.01" id="capTaxRate" class="inp" placeholder="21"></label>
+                            <label class="field"><span>Cuota IVA</span><input type="number" step="0.01" id="capTax" class="inp"></label>
+                        </div>
+
+                        <div class="lines-block">
+                            <div class="lines-head"><span>Líneas de detalle</span><button id="btnAddLine" type="button" class="link-btn">+ añadir línea</button></div>
+                            <div id="capLines" class="lines"></div>
+                        </div>
+
+                        <label class="field"><span>Pegar texto del recibo (para autocompletar) <button id="btnCapExtract" type="button" class="link-btn">extraer datos</button></span>
+                            <textarea id="capExtractText" class="inp" rows="2" placeholder="Pega aquí el texto del ticket/recibo y pulsa «extraer datos»…"></textarea></label>
+                    </div>
+
+                    <label class="field"><span>Nota</span><input type="text" id="capMemo" class="inp" placeholder="Comentario opcional para el asesor"></label>
+                </div>
+            </div>
+            <div class="modal-foot">
+                <button class="btn btn-ghost" data-close="modalCapture">Cancelar</button>
+                <button id="btnCapSave" class="btn btn-primary">Archivar documento</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== Modal: Detalle ===================== -->
+    <div id="modalDetail" class="modal-overlay">
+        <div class="modal modal-xl">
+            <div class="modal-head"><h3>Detalle del documento</h3><button class="icon-btn" data-close="modalDetail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+            <div class="modal-body" id="detailBody"></div>
+        </div>
+    </div>
+
+    <!-- ===================== Modal: Entidad ===================== -->
+    <div id="modalEntity" class="modal-overlay">
+        <div class="modal modal-sm">
+            <div class="modal-head"><h3>Editar entidad</h3><button class="icon-btn" data-close="modalEntity"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+            <div class="modal-body" id="entEditorBody"></div>
+            <div class="modal-foot"><button class="btn btn-ghost" data-close="modalEntity">Cancelar</button><button id="entEditorSave" class="btn btn-primary">Guardar</button></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/data.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/zip.js"></script>
+    <script src="js/extract.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/capture.js"></script>
+    <script src="js/documents.js"></script>
+    <script src="js/entities.js"></script>
+    <script src="js/reports.js"></script>
+    <script src="js/integrations.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

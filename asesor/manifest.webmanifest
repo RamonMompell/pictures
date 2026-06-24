@@ -1,0 +1,14 @@
+{
+  "name": "ÁBACO · Panel de asesoría fiscal",
+  "short_name": "ÁBACO",
+  "description": "Panel de comunicación con la asesoría: captura, clasifica y reporta facturas y gastos de todas tus entidades.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#15171b",
+  "theme_color": "#15171b",
+  "icons": [
+    { "src": "assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
